@@ -1,0 +1,47 @@
+---
+title: "Data 605 Assignment-5"
+author: "Deepak Mongia"
+date: "March 7, 2019"
+output: html_document
+---
+
+Choose independently two numbers B and C at random from the interval [0, 1] with uniform density. Prove that B and C are proper probability distributions.
+Note that the point (B,C) is then chosen at random in the unit square.
+
+
+Using the uniform ditribution function - runif to allocate random numbers
+```{r}
+set.seed(123)
+B <- runif(10000, min = 0, max = 1)
+set.seed(234)
+C <- runif(10000, min = 0, max = 1)
+```
+
+
+Find the probability that
+
+(a) B + C < 1/2.
+```{r}
+sum((B + C) < 0.5) / 10000
+```
+
+(b) BC < 1/2
+```{r}
+sum((B*C) < 0.5) / 10000
+```
+
+(c) |B ??? C| < 1/2
+```{r}
+sum(abs(B-C) < 0.5) / 10000
+```
+
+(d) max{B,C} < 1/2
+```{r}
+sum(pmax(B,C) < 0.5) / 10000
+```
+
+(e) min{B,C} < 1/2
+```{r}
+sum(pmin(B,C) < 0.5) / 10000
+```
+
