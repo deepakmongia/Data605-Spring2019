@@ -1,0 +1,202 @@
+---
+title: "Data605 - Assignment-6"
+author: "Deepak Mongia"
+date: "March 9, 2019"
+output: html_document
+---
+
+1.	A box contains 54 red marbles, 9 white marbles, and 75 blue marbles. If a marble is randomly selected from the box, what is the probability that it is red or blue? Express your answer as a fraction or a decimal number rounded to four decimal places.
+
+Answer: Probability that the marble selected is a red or blue marble = 
+	(number of red or blue marbles) / total number of marbles
+
+```{r}
+library(dplyr)
+
+((54 + 75) / (54 + 75 + 9)) %>% round(4)
+```
+
+2. You are going to play mini golf. A ball machine that contains 19 green golf balls, 20 red golf balls, 24 blue golf balls, and 17 yellow golf balls, randomly gives you your ball. What is the probability that you end up with a red golf ball? Express your answer as a simplified fraction or a decimal rounded to four decimal places.
+
+Answer: Probability of getting a red ball = (number of red balls available) / (total number of balls)
+
+```{r}
+(20 / (19 + 20 + 24 + 17)) %>% round(4)
+```
+
+3. A pizza delivery company classifies its customers by gender and location of residence. The research department has gathered data from a random sample of 1399 customers. The data is summarized in the table below.
+
+Gender and Residence of Customers
+                            Males         Females
+Apartment                     81            228
+Dorm                          116           79
+With Parent(s)                215           252
+Sorority/Fraternity House     130           97
+Other                         129           72
+
+What is the probability that a customer is not male or does not live with parents? Write your answer as a fraction or a decimal number rounded to four decimal places.
+
+Answer: P(customer is not a male or does not live with parents) - As this is an or, that means this event is same as :
+either the customer is a female OR the customer does not live with parents, which is equivalent to:
+all customers from the table MINUS males living with parents
+= 1399 - 215
+
+```{r}
+((1399 - 215) / 1399) %>% round(4)
+```
+
+If the question was for: probability that a customer is neither male nor does the customer live with parents,
+then this event would be equivalent to:
+all female customers MINUS females living with parents
+```{r}
+((228 + 79 + 97 + 72) / 1399) %>% round(4)
+```
+
+4. Determine if the following events are independent.
+Going to the gym. Losing weight
+Answer: These are dependent events.
+
+5. A veggie wrap at City Subs is composed of 3 different vegetables and 3 different condiments wrapped up in a tortilla. If there are 8 vegetables, 7 condiments, and 3 types of tortilla available, how many different veggie wraps can be made?
+
+Answer:
+```{r}
+choose(8, 3) * choose(7, 3) * choose(3, 1)
+```
+
+6. Determine if the following events are independent.
+Jeff runs out of gas on the way to work. Liz watches the evening news.
+
+Answer: Tese are independent events.
+
+7. The newly elected president needs to decide the remaining 8 spots available in the cabinet he/she is appointing. If there are 14 eligible candidates for these positions (where rank matters), how many different ways can the members of the cabinet be appointed?
+
+Answer:
+As the rank matters here, this will be the Permutation instead of the Combination.
+```{r}
+factorial(14) / factorial(14 - 8)
+```
+
+8. A bag contains 9 red, 4 orange, and 9 green jellybeans. What is the probability of reaching into the bag and randomly withdrawing 4 jellybeans such that the number of red ones is 0, the number of orange ones is 1, and the number of green ones is 3? Write your answer as a fraction or a decimal number rounded to four decimal places.
+
+Answer:
+Total number of ways of withdrawing 4 jellybeans:
+```{r}
+(9 + 4 + 9) %>% choose(4)
+```
+
+Number of ways to withdraw : 1 orange and 3 green ones:
+```{r}
+choose(4, 1) * choose(9, 3)
+```
+
+Probability of withdrawing 1 orange and 3 green ones = 
+(Number of ways to withdraw : 1 orange and 3 green ones) / 
+(Total number of ways of withdrawing 4 jellybeans)
+
+```{r}
+((choose(4, 1) * choose(9, 3)) / ((9 + 4 + 9) %>% choose(4))) %>% round(4)
+```
+
+9. Evaluate the following expression.
+
+11! / 7!
+
+Answer: 11! / 7! = (11.10.9.8.7!) / 7! =
+11.10.9.8 = 
+7920
+
+Alternatively using R:
+```{r}
+factorial(11) / factorial(7)
+```
+
+10. Describe the complement of the given event.
+67% of subscribers to a fitness magazine are over the age of 34.
+
+Answer: The remaining 33% subscribers of the magazine are 34 or below.
+As both add up to give 100% or probability of 1, the above is the complement of the even given in the question.
+
+
+11. If you throw exactly three heads in four tosses of a coin you win $97. If not, you pay me $30.
+Step 1. Find the expected value of the proposition. Round your answer to two decimal places.
+
+Answer: 
+Let us first find the total number of possible outcomes when 4 coins are tossed. This will give the total number.
+```{r}
+total_number_of_ways_11 <- 2^4
+total_number_of_ways_11
+```
+
+Now, the number of ways exactly 3 heads can come:
+```{r}
+number_of_ways_3_heads_11 <- choose(4, 3)
+number_of_ways_3_heads_11
+```
+
+Now, probablity of getting exactly 3 heads:
+```{r}
+probability_3_heads_11 <- number_of_ways_3_heads_11 / total_number_of_ways_11
+probability_3_heads_11
+```
+
+Value of the proposition:
+```{r}
+value_of_proposition_11 <- probability_3_heads_11 * 97 + (1 - probability_3_heads_11) * (-30)
+value_of_proposition_11
+```
+
+Hence, the value of this proposition is +1.75
+
+Step 2. If you played this game 559 times how much would you expect to win or lose? (Losses must be entered as
+negative.)
+
+Answer: 
+Expected win or loss = value of each possible game (value proposition) X number of games played
+```{r}
+expected_win_or_loss_11 <- value_of_proposition_11 * 559
+expected_win_or_loss_11
+```
+
+Hence I am expected to win $978.25 if I play 559 games
+
+
+12. Flip a coin 9 times. If you get 4 tails or less, I will pay you $23. Otherwise you pay me $26.
+Step 1. Find the expected value of the proposition. Round your answer to two decimal places.
+
+Answer:
+Similar to exercise 11, we will first calculate the total number of possible outcomes:
+```{r}
+total_number_of_ways_12 <- 2^9
+total_number_of_ways_12
+```
+
+Now we will find the possible number of ways to have 4 tails or less, which will be = 
+Number of ways to have 0 Tails + 1 Tails + 2 Tails + 3 Tails + 4 Tails
+```{r}
+number_of_ways_4orless_tails <- 1 + choose(9, 1) + choose(9, 2) + choose(9, 3) + choose(9, 4)
+number_of_ways_4orless_tails
+```
+
+```{r}
+probability_4orless_tails <- number_of_ways_4orless_tails / total_number_of_ways_12
+probability_4orless_tails
+```
+
+```{r}
+value_of_proposition_12 <- probability_4orless_tails * 23 + (1 - probability_4orless_tails) * (-26)
+value_of_proposition_12
+```
+Value of proposition = -1.5
+
+Step 2. If you played this game 994 times how much would you expect to win or lose? (Losses must be entered as
+negative.)
+
+Answer:
+```{r}
+expected_win_or_loss_12 <- value_of_proposition_12 * 994
+expected_win_or_loss_12
+```
+
+Value of expected_win_or_loss_12 is -1491, which is a negative value. So, I am expected to lose 1491, if I play this game 994 times.
+
+
