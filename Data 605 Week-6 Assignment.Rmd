@@ -200,3 +200,46 @@ expected_win_or_loss_12
 Value of expected_win_or_loss_12 is -1491, which is a negative value. So, I am expected to lose 1491, if I play this game 994 times.
 
 
+13. The sensitivity and specificity of the polygraph has been a subject of study and debate for years. A 2001 study of the use of polygraph for screening purposes suggested that the probability of detecting a liar was .59 (sensitivity) and that the probability of detecting a "truth teller" was .90 (specificity). We estimate that about 20% of individuals selected for the screening polygraph will lie.
+
+a. What is the probability that an individual is actually a liar given that the polygraph detected him/her as such? (Show me the table or the formulaic solution or both.)
+
+Answer: Assigning the given values to variables:
+```{r}
+p_liar = 0.2
+p_detect_liar_a_liar = 0.59
+p_detect_truthteller_a_truthteller = 0.9
+p_truthteller = 1 - p_liar
+```
+
+Calculating the absolute values now:
+```{r}
+p_liar_detected_liar = p_liar * p_detect_liar_a_liar
+p_liar_detected_truthteller = p_liar * (1 - p_detect_liar_a_liar)
+p_truthteller_detected_liar = p_truthteller * (1 - p_detect_truthteller_a_truthteller)
+p_truthteller_detected_truthteller = p_truthteller * p_detect_truthteller_a_truthteller
+```
+
+Now calculating this answer:
+```{r}
+p_liar_given_detected_liar = (p_liar_detected_liar / (p_liar_detected_liar + p_truthteller_detected_liar)) %>% round(4)
+
+p_liar_given_detected_liar
+```
+
+b. What is the probability that an individual is actually a truth-teller given that the polygraph detected him/her as such? (Show me the table or the formulaic solution or both.)
+Answer:
+```{r}
+p_truthteller_given_detected_truthteller = (p_truthteller_detected_truthteller / (p_truthteller_detected_truthteller + p_liar_detected_truthteller)) %>% round(4)
+
+p_truthteller_given_detected_truthteller
+```
+
+C. What is the probability that a randomly selected individual is either a liar or was identified as a liar by the polygraph? Be sure to write the probability statement.
+Answer:
+```{r}
+p_either_liar_or_detected_liar = (p_liar + p_truthteller_detected_liar) %>% round(4)
+
+p_either_liar_or_detected_liar
+```
+
