@@ -1,0 +1,62 @@
+---
+title: "Data 605 Week-8 Assignment"
+author: "Deepak Mongia"
+date: "March 27, 2019"
+output: html_document
+---
+
+### Page No 303, Question 11. A company buys 100 lightbulbs, each of which has an exponential lifetime of  1000 hours. What is the expected time for the first of these bulbs to burn out? (See Exercise 10.)
+Answer:
+Here we have 100 independent random variables which have an exponential distribution.
+As per the formula,
+
+###min{X1, X2, X3, ..., Xn} ~ exponential($\sum_{1}^{n}$ $\lambda_i$)
+
+Hence in this case,
+
+###min{$X_1$, $X_2$, $X_3$, ..., $X_(100)$} ~ exponential($\sum_{1}^{100}$ $\lambda_i$)
+
+###$\lambda_i$ for all i = 1/$\mu$ = 1/1000
+
+###Hence, this equals : 100 X 1/1000 = 1/10
+
+### So expected value = 1 / 1/10 = 10
+
+### Hence expected value of the burn out of the first bulb is 10 hours
+
+
+###Page No 303, Question 14. Assume that X1 and X2 are independent random variables, each having an exponential density with parameter $\lambda$. Show that Z = X1 - X2 has density: 
+$$ f_z = (1/2) \lambda e^{-\lambda|z|} $$
+
+Answer:
+Now for the convolution W = X + Y, we know the probability density would be:
+$$ f_W(w) = \int_{-\infty}^{\infty} f_X(x) f_Y(w-x) dx $$
+
+Here Z = X1 - X2 = X1 + (-X2)
+
+Hence
+$$ f_Z(z) = \int_{-\infty}^{\infty} f_X(x) f_{-Y}(z-x) dx $$
+
+Now, we can safely say: 
+$$ f_{-Y}(z-x) = f_Y(x-z) $$
+
+Hence,
+$$ f_Z(z) = \int_{-\infty}^{\infty} f_X(x) f_Y(x-z) dx $$
+
+Now for z < 0, 
+$$ f_Z(z) = \int_{0}^{\infty} \lambda e^{-\lambda x} \lambda e^{-\lambda (x-z)} dx $$
+
+We are taking 0 to $\infty$ because $$ f_X(x) = 0 $$ for x < 0
+$$ f_Z(z) = \lambda e^{\lambda z} \int_{0}^{\infty} \lambda e^{-2\lambda x} dx $$
+$$ = (\lambda /2) e^{\lambda z} $$ when z < 0
+
+Z and -Z have same distribution.
+
+Hence with that, for z $\ge$ 0, we will have to take the negative the exponent
+$$ f_Z(z) = (\lambda /2) e^{-\lambda z} $$ when z $\ge$ 0
+
+Combining both the ranges z < 0 and z $\ge$ 0,
+we can say:
+$$ f_z = (1/2) \lambda e^{-\lambda|z|} $$
+
+
