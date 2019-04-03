@@ -1,0 +1,83 @@
+---
+title: "Data 605 Assignment-9"
+author: "Deepak Mongia"
+date: "April 1, 2019"
+output: html_document
+---
+
+###Problem 1 - #11 on page 363: The price of one share of stock in the Pilsdorff Beer Company (see Exercise 8.2.12) is given by $Y_n$ on the nth day of the year. Finn observes that the differences $X_n = Y_{n+1} - Y_n$ appear to be independent random variables with a common distribution having mean $\mu$ = 0 and variance $\sigma ^2$ = 1/4. If $Y_1$ = 100, estimate the probability that $Y_{365}$ is
+
+###(a)  $\ge$ 100
+
+###Answer:
+```{r}
+mean <- 0
+variance <- 1/4
+sd <- sqrt(variance)
+n <- 364
+
+## calculating x as : (value - mean)/sqrt(n)
+x1 <- (100 - 100)/sqrt(n)
+pnorm(x1, mean = mean, sd = sd, lower.tail = FALSE)
+```
+
+###(a)  $\ge$ 110
+
+###Answer:
+```{r}
+
+## calculating x as : (value - mean)/sqrt(n)
+x2 <- (110 - 100)/sqrt(n)
+pnorm(x2, mean = mean, sd = sd, lower.tail = FALSE)
+```
+
+###(a)  $\ge$ 120
+
+###Answer:
+```{r}
+
+## calculating x as : (value - mean)/sqrt(n)
+x3 <- (120 - 100)/sqrt(n)
+pnorm(x3, mean = mean, sd = sd, lower.tail = FALSE)
+```
+
+###2. Calculate the expected value and variance of the binomial distribution using the moment generating function.
+
+Answer: PMF for binomial distribution is defined as:
+$\binom{n}{x} p^{x} q^{n-x}$
+
+MGF would be:
+
+M(t) = $$\sum_{x=1}^{n} e^{tx} \binom{n}{x} p^{x} q^{n-x}$$
+     = $$\sum_{x=1}^{n} \binom{n}{x} {(pe^t)}^x q^{n-x}$$
+     = ${(pe^t + q)}^n$
+     
+For Expected value, taking the first derivative of MGF and then substitute t by 0.
+E(x) = np
+
+Similarly
+$E(X^2) = n(n-1)p^2 + np$
+
+Var(X) = $E(X^2) - E(X)^2$
+= $np(1-p)$
+
+###3. Calculate the expected value and variance of the exponential distribution using the moment generating function.
+
+Answer:
+PDF for exponential function = $\lambda e^{-x\lambda}$
+
+$M(t) = \int_{0}^{\infty} e^{tx} \lambda e^{-x\lambda}$
+
+$= \lambda \int_{0}^{\infty} e^{-x(\lambda - t)}$
+
+$= \lambda / {(\lambda - t)}$
+
+$E(X) = 1/\lambda$
+
+$E(X^2) = 2/{\lambda ^2}$
+
+$Var(X) = E(X^2) - E(X)^2$
+
+$= 2/{\lambda ^2} - 1/{\lambda ^2}$
+
+$= 1/{\lambda ^2}$
