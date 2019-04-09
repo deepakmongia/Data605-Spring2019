@@ -1,0 +1,26 @@
+---
+title: "Data 605 Assignment 10"
+author: "Deepak Mongia"
+date: "April 9, 2019"
+output: html_document
+---
+
+##Smith is in jail and has 1 dollar; he can get out on bail if he has 8 dollars. A guard agrees to make a series of bets with him. If Smith bets A dollars, he wins A dollars with probability .4 and loses A dollars with probability .6.
+
+##Find the probability that he wins 8 dollars before losing all of his money if
+
+###(a) he bets 1 dollar each time (timid strategy).
+
+$P_{win} = 1 - {((0.6/0.4)^1 - (0.6/0.4)^8)}/{11(0.6/0.4)^8}$
+= 0.02030135
+
+###(b) he bets, each time, as much as possible but not more than necessary to bring his fortune up to 8 dollars (bold strategy).
+
+Answer:
+```{r}
+dbinom(3,3,0.4)
+```
+
+###(c) Which strategy gives Smith the better chance of getting out of jail?
+
+Answer: As we see from a and b, the bold strategy has a probability of getting out of jail as 0.06 which is more than the probability while using timid strategy, which is 0.02, hence bold strategy has a better chance for him getting out of jail.
