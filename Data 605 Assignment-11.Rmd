@@ -1,0 +1,79 @@
+---
+title: "Data 605 Assignment-11"
+author: "Deepak Mongia"
+date: "April 15, 2019"
+output: html_document
+---
+
+##Using the "cars" dataset in R, build a linear model for stopping distance as a function of speed and replicate the analysis of your textbook chapter 3 (visualization, quality evaluation of the model, and residual analysis.)
+
+### By looking at the help details for cars, we see the below details for the dataset
+
+Speed and Stopping Distances of Cars
+
+Description
+
+The data give the speed of cars and the distances taken to stop. Note that the data were recorded in the 1920s.
+
+Usage
+
+cars
+Format
+
+A data frame with 50 observations on 2 variables.
+
+[,1]	 speed	 numeric	 Speed (mph)
+
+[,2]	 dist	 numeric	 Stopping distance (ft)
+
+Importing the dataset
+
+```{r}
+dataset_cars <- cars
+
+summary(dataset_cars)
+```
+
+```{r}
+library(ggplot2)
+ggplot() +
+  geom_point(aes(x = dataset_cars$speed, y = dataset_cars$dist),
+             color = 'red') +
+  ggtitle('speed and stopping distance of cars') +
+  xlab('speed (mph)') +
+  ylab('stopping distance (ft)')
+```
+
+From the initial view, there looks to be a positive linear relationship between the speed of the car and the stopping disctance.
+Let us check further how closely these 2 are related, and relationship statistics.
+
+Defining a linear model between the speed and stopping distance using lm function. Then we will evaluate the model.
+```{r}
+regressor <- lm(formula = dist ~ speed, 
+                data = dataset_cars)
+
+regressor
+```
+
+From the above details, we see the 2 important values: 
+Intercept - distance required to stop a vehicle when the speed is 0. This is not a valid scenario, however it is used to determine the line.Its value is -17.579
+Slope - the change in the dependent variable for every unit change of the independent variable. Its value is 3.932, that means for every 1 mph increased or decrease in the speed, the corresponding stopping distance will be increased or decreased by 3.932 ft.
+
+###*Stopping distance = -17.579 + 3.932 X speed* 
+
+###Evaluating the model
+
+```{r}
+summary(regressor)
+```
+
+As we see above, 65.11% of the variation of the stopping distance is explained by the speed of the car.
+
+Plotting the residuals:
+```{r}
+plot(fitted(regressor),resid(regressor))
+
+qqnorm(resid(regressor))
+qqline(resid(regressor))
+```
+
