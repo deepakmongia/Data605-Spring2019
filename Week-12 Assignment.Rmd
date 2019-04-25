@@ -1,0 +1,101 @@
+---
+title: "Data 605 Assignment-12"
+author: "Deepak Mongia"
+date: "April 24, 2019"
+output: html_document
+---
+##The attached who.csv dataset contains real-world data from 2008. The variables included follow.
+###Country: name of the country
+###LifeExp: average life expectancy for the country in years
+###InfantSurvival: proportion of those surviving to one year or more
+###Under5Survival: proportion of those surviving to five years or more
+###TBFree: proportion of the population without TB.
+###PropMD: proportion of the population who are MDs
+###PropRN: proportion of the population who are RNs
+###PersExp: mean personal expenditures on healthcare in US dollars at average exchange rate
+###GovtExp: mean government expenditures per capita on healthcare, US dollars at average exchange rate
+###TotExp: sum of personal and government expenditures.
+
+```{r}
+getURL <- "https://raw.githubusercontent.com/deepakmongia/Data605-Spring2019/master/who.csv"
+who_data <- read.csv(getURL, header = TRUE, sep = ",")
+
+##Getting the basic statistics of the data set
+summary(who_data)
+
+str(who_data)
+
+head(who_data)
+```
+
+
+###1. Provide a scatterplot of LifeExp~TotExp, and run simple linear regression. Do not transform the variables. Provide and interpret the F statistics, R^2, standard error,and p-values only. Discuss whether the assumptions of simple linear regression met.
+
+```{r}
+library(ggplot2)
+ggplot(who_data, aes(x=who_data$TotExp, y=who_data$LifeExp)) + geom_point()
+
+lifeexp.totexp.lm <- lm(LifeExp ~ TotExp, who_data)
+lifeexp.totexp.lm
+summary(lifeexp.totexp.lm)
+
+ggplot(who_data, aes(x=who_data$TotExp, y=who_data$LifeExp)) + geom_point(color = 'red') + 
+  geom_line(aes(x = who_data$TotExp, y=predict(lifeexp.totexp.lm, newdata = who_data)), color = 'blue')
+
+```
+As we see above in the summary of the model, even though the p-value is very leass, but R squared is also very less.
+Also from the plot, it is clear that this linear model is not a good fit.
+
+###2. Raise life expectancy to the 4.6 power (i.e., LifeExp^4.6). Raise total expenditures to the 0.06 power (nearly a log transform, TotExp^.06). Plot LifeExp^4.6 as a function of TotExp^.06, and r re-run the simple regression model using the transformed variables. Provide and interpret the F statistics, R^2, standard error, and p-values. Which model is "better?"
+
+```{r}
+ggplot(who_data, aes(x=(who_data$TotExp ^ 0.06), y=(who_data$LifeExp ^ 4.6))) + geom_point()
+
+lifeexp.totexp.trf.lm <- lm(I(LifeExp ^ 4.6) ~ I(TotExp ^ 0.06), who_data)
+lifeexp.totexp.trf.lm
+summary(lifeexp.totexp.trf.lm)
+
+ggplot(who_data, aes(x=(who_data$TotExp ^ 0.06), y=(who_data$LifeExp ^ 4.6))) + geom_point(color = 'red') + 
+  geom_line(aes(x = (who_data$TotExp ^ 0.06), y=predict(lifeexp.totexp.trf.lm, newdata = who_data)), color = 'blue')
+
+```
+
+From this above plot, the linear relationship looks very clear between these 2 transformed variables.
+
+Also as we see from the model, the R squared values are high enough to assume that this is a good fit for the data.
+
+Hence we see that the new model fits good as compared to the model we built earlier.
+
+###3. Using the results from 3, forecast life expectancy when TotExp^.06 =1.5. Then forecast life expectancy when TotExp^.06=2.5.
+
+```{r}
+LifeExp.trf.3a <- predict(lifeexp.totexp.trf.lm, newdata = data.frame(TotExp = 1.5 ^ (1/0.06)))
+LifeExp.3a <- LifeExp.trf.3a ^ (1/4.6)
+print(LifeExp.3a)
+
+
+LifeExp.trf.3b <- predict(lifeexp.totexp.trf.lm, newdata = data.frame(TotExp = 2.5 ^ (1/0.06)))
+LifeExp.3b <- LifeExp.trf.3b ^ (1/4.6)
+print(LifeExp.3b)
+```
+
+###4. Build the following multiple regression model and interpret the F Statistics, R^2, standard error, and p-values. How good is the model?
+
+###LifeExp = b0+b1 x PropMd + b2 x TotExp +b3 x PropMD x TotExp
+
+```{r}
+LifeExp.prob4.lm <- lm(LifeExp ~ PropMD + TotExp + PropMD * TotExp, data = who_data)
+
+summary(LifeExp.prob4.lm)
+```
+
+As we see from the above model, R-squared value is very less. Hence we see that this is not a very good fit.
+
+###5. Forecast LifeExp when PropMD=.03 and TotExp = 14. Does this forecast seem realistic? Why or why not?
+
+```{r}
+LifeExp.trf.5 <- predict(LifeExp.prob4.lm, newdata = data.frame(TotExp = 14, PropMD = 0.03))
+print(LifeExp.trf.5)
+```
+
+The forecast does not seem to be realistic as it is a very high value which is not reasonable.
