@@ -103,4 +103,24 @@ Hence, for minimum inventory costs, 1 order of size 110 will be optimum.
 ## $\int (x^6)ln(9x)$ dx
 
 ### As per the integration by parts formula:
-### $\int f(x)\overline{g}(x) $  dx
+### $\int f(x)g^{'}(x) = f(x)g(x) - \int f^{'}(x)g(x)$
+
+### Now we will take f(x) = ln(9x), hence 
+### $\ f^{'}(x) = 1/x$
+### $and  we  take \ g^{'}(x) = x^6, hence g(x) = x^7 / 7$
+
+### $\int (x^6)ln(9x)$ dx = 
+### $\ (x^7)ln(9x)/7$  - $\int 1/x * (x^7)/7$ dx
+### $\ = (x^7)ln(9x)/7$  - 1/7 $\int x^6$ dx
+### $\ = (x^7)ln(9x)/7$  - $x^7 / 49 + C$ 
+
+
+##7. Determine whether f ( x ) is a probability density function on the interval $[1, e^6]$ . If not, determine the value of the definite integral.
+## $f(x) = 1/{(6x)}$
+
+### $\int_1^{e^6} 1/{(6x)}$ dx = 
+### $(1/6)  (ln(e^6) - ln(1))$ = 
+### $\(1/6) (6 x 1 - 0) $ = 
+### = 1 
+
+### Hence this is a probability distribution with 100% probability under the same.
