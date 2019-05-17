@@ -1,0 +1,53 @@
+---
+title: "Data 605 Assignment-14"
+author: "Deepak Mongia"
+date: "May 16, 2019"
+output: html_document
+---
+
+## This week, we'll work out some Taylor Series expansions of popular functions.
+### 1. $f(x) = 1/(1-x)$
+
+### $f(x) = \sum_{0}^{\infty} (f^n(0) / n!) x^n$
+
+### $f(0) = 1$
+### $f^{'}(0) = 1$
+### $f^{''}(0) = 2$
+### $f^{'''}(0) = 6$
+### $f^{''''}(0) = 24$
+
+### Substituting these values, we get
+
+### $f(x) =  1 + x^1 + x^2 + x^3 + x^4$ + ...
+
+
+
+### 2. $f(x) = e^x$
+### $f(x) = \sum_{0}^{\infty} (f^n(0) / n!) x^n$
+
+### differential of $e^x = e^x$ 
+### $f(0) = e^0 = 1$
+### $f^{'}(0) = 1$
+### $f^{''}(0) = 1$
+### $f^{'''}(0) = 1$
+### $f^{''''}(0) = 1$
+
+### Substituting these values, we get
+
+### $f(x) =  1 + x^1 + x^2/2! + x^3/3! + x^4/4!$ + ...
+
+
+
+
+### 3. $f(x) = ln(1+x)$
+### $f(x) = \sum_{0}^{\infty} (f^n(0) / n!) x^n$
+
+### $f(0) = ln(1+0) = 0$
+### $f^{'}(x) = 1/(1+x), f^{'}(0) = 1$
+### $f^{''}(x) = -1/(1+x)^2, f^{''}(0) = -1$
+### $f^{'''}(x) = 2/(1+x)^3, f^{'''}(0) = 2$
+### $f^{''''}(x) = -2.3/(1+x)^4, f^{''''}(0) = -6$
+
+### Substituting these values, we get
+
+### $f(x) =  x^1 - x^2/2 + x^3/3 - x^4/4$ + ...
