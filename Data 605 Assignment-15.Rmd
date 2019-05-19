@@ -1,0 +1,94 @@
+---
+title: "Data 605 Assignment-15"
+author: "Deepak Mongia"
+date: "May 17, 2019"
+output: html_document
+---
+
+##1. Find the equation of the regression line for the given points. Round any final values to the nearest hundredth, if necessary. ( 5.6, 8.8 ), ( 6.3, 12.4 ), ( 7, 14.8 ), ( 7.7, 18.2 ), ( 8.4, 20.8 )
+
+```{r}
+df <- data.frame(rbind(c( 5.6, 8.8 ), c( 6.3, 12.4 ), c( 7, 14.8 ), c( 7.7, 18.2 ), c( 8.4, 20.8 )))
+
+lm_model <- lm(df$X2 ~ df$X1, df)
+
+plot(df$X2 ~ df$X1, data=df)
+abline(lm_model)
+
+summary(lm_model)
+
+```
+
+From the intercepts given in the summary, we can write the equation:
+
+### $y = -14.8 + 4.2571 * x$
+
+##2. Find all local maxima, local minima, and saddle points for the function given below. Write your answer(s) in the form ( x, y, z ). Separate multiple points with a comma.
+### $f(x,y) = 24x -  6xy^2 -8y^3$
+
+### To get the local maxima / minima or relative extrema, we will calculate the first partial derivatives of the function on both x and y.
+### These derivatives will be zero at the relative extrema.
+
+###$f_{x}(x,y) = 24 -  6y^2$
+###$f_{y}(x,y) = -12xy - 24y^2$
+
+### At relative extrema, $f_{x}(x,y) = 0$ and $f_{y}(x,y) = 0$
+
+### $f_{x}(x,y) = 24 -  6y^2 = 0$
+### $y = +2, -2$
+
+### $f_{y}(x,y) = -12xy - 24y^2 = 0$
+### $x = -2y$
+### Now substituting the 2 values of y from above 
+### At $y = +2, x = -2y = -4$
+### At $y = -2, x = -2y = +4$
+
+### Hence the 2 points are (-4,2) and (4,-2)
+
+
+##3. A grocery store sells two brands of a product, the "house" brand and a "name" brand. The manager estimates that if she sells the "house" brand for x dollars and the "name" brand for y dollars, she will be able to sell 81 ??? 21x + 17y units of the "house" brand and 40 + 11x ??? 23y units of the "name" brand.
+##Step 1. Find the revenue function R(x,y).
+### $R(x,y) = x(81 - 21x + 17y) + y(40 + 11x - 23y)$
+### $R(x,y) = 81x - 21x^2 + 17xy + 40y + 11xy - 23y^2$
+### $R(x,y) = -21x^2 - 23y^2 + 28xy + 81x + 40y$
+
+##Step 2. What is the revenue if she sells the "house" brand for $2.30 and the "name" brand for $4.10?
+### In this case, $x=2.3$, and $y=4.1$
+### Substituting the values of x and y in the above function:
+### Revenue for this case = $-21 (2.3)^2 - 23(4.1)^2 + 28(2.3)(4.1) + 81(2.3) + 40(4.1)$
+### $= -111.09 + 386.63 + 264.04 + 186.3 + 164$
+### $= 116.62$
+
+##4. A company has a plant in Los Angeles and a plant in Denver. The firm is committed to produce a total of 96 units of a product each week. The total weekly cost is given by $C(x,y) = (1/6) x^2 + (1/6) y^2 + 7x + 25y + 700$ , where x is the number of units produced in Los Angeles and y is the number of units produced in Denver. How many units should be produced in each plant to minimize the total weekly cost?
+
+### $x + y = 96$
+### $y = 96 - x$
+### Replacing y in the function C(x,y) 
+###$C(x,96-x) = (1/6) x^2 + (1/6) (96-x)^2 + 7x + 25(96-x) + 700$
+###$C(x,96-x) = (1/6) x^2 + (1/6) (9216 + x^2 -192x) + 7x - 25x + 2400 + 700$
+###$C(x,96-x) = (1/3) x^2 + 1536 - 32x - 18x + 3100$
+###$C(x,96-x) = (1/3) x^2 -50x + 4636$
+
+### The above is the cost function. For C to be minimum, $C^{'} = 0$
+### $C^{'} = (2/3) x - 50 = 0$
+### $x = 75$
+### Substituting x in the equation : x + y = 96, $y = 21$
+
+### Hence 75 units produced in Los Angeles and 21 in Denver - to have the minimum cost
+
+
+##5. Evaluate the double integral on the given region.
+### $\int \int_R (e^{8x+3y})$ dA $; R:2 \le x \le 4$ and $2 \le y \le 4$
+## Write your answer in exact form without decimals.
+
+### We know that $\int e^{nx}$dx = $e^{nx}/n$
+
+### Using this, we write below:
+### $\int_2^4 (\int_2^4 (e^{8x+3y}) dx) dy$
+### $= \int_2^4 (\int_2^4 (e^{8x} e^{3y}) dx) dy$
+### $= \int_2^4 e^{3y} (\int_2^4 (e^{8x} ) dx) dy$
+### $= \int_2^4 e^{3y} \left. ((1/8)e^{8x}) \right|_{2}^{4} dy$
+### $= \int_2^4 (e^{3y}/8) (e^{32} - e^{16}) dy$
+### $= ((e^{32} - e^{16})/8) \int_2^4 e^{3y} dy$
+### $= ((e^{32} - e^{16})/8) \left. ((1/3)e^{3y}) \right|_{2}^{4}$
+### $= (1/24) (e^{32} - e^{16}) (e^{12} - e^{6})$
