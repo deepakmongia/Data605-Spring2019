@@ -1,0 +1,448 @@
+---
+title: "Data 605 Final Exam"
+author: "Deepak Mongia"
+date: "5/24/2019"
+output: html_document
+---
+
+```{r, echo=TRUE, results='hide'}
+library(kableExtra)
+library(pastecs)
+library(psych)
+library(e1071)
+library(fBasics)
+library(dplyr)
+library(ggplot2)
+library(pracma)
+library(MASS)
+library(survival)
+```
+
+## Problem # 1: Using R, generate a random variable X that has 10,000 random uniform numbers from 1 to N, where N can be any number of your choosing greater than or equal to 6.  Then generate a random variable Y that has 10,000 random normal numbers with a mean of mu = sigma = (N+1)/2.
+
+```{r}
+N <- 10
+
+set.seed(123)
+X <- runif(10000, 1, N)
+
+set.seed(123)
+Y <- rnorm(10000, (N+1)/2, (N+1)/2)
+
+x <- median(X)
+print(x)
+
+y <- quantile(Y, 0.25)
+print(y)
+
+X_Y_df <- as.data.frame(cbind(X,Y))
+```
+
+### Probability.   Calculate as a minimum the below probabilities a through c.  Assume the small letter "x" is estimated as the median of the X variable, and the small letter "y" is estimated as the 1st quartile of the Y variable.  Interpret the meaning of all probabilities.
+
+#### a. P(X>x | X>y)
+
+We will use the dataframe we created above from the 2 vectors.
+
+Using the formula: P(X>x | X>y) = P(X>x and X>y) / P(X>y)
+
+```{r}
+p_1_a <- (length(X[X>x & X>y])/length(X)) /(length(X[X>y])/length(X))
+print(p_1_a)
+```
+
+#### b. P(X>x, Y>y)
+
+As both are independent events, we will use the formula:
+P(A and B) = P(A).P(B)
+
+```{r}
+p_X_gt_x <- length(X[X>x]) / length(X)
+
+p_Y_gt_y <- length(Y[Y>y]) / length(Y)
+
+p_1_b <- p_X_gt_x * p_Y_gt_y
+
+print(p_1_b)
+```
+
+#### c. P(X<x | X>y)
+
+```{r}
+p_X_lt_x_and_X_gt_y = length(X[X<x & X>y])/length(X)
+p_X_gt_y <- length(X[X>y])/length(X)
+
+p_1_c <- p_X_lt_x_and_X_gt_y / p_X_gt_y
+print(p_1_c)
+```
+
+### 5 points.   Investigate whether P(X>x and Y>y)=P(X>x)P(Y>y) by building a table and evaluating the marginal and joint probabilities.
+
+#### We will use the dataframe that we built above, to build the contingency table.
+
+```{r}
+Xgtx_Ygty_count <- length(X[X>x & Y>y])
+Xgtx_Ylty_count <- length(X[X>x & Y<y])
+
+Xltx_Ygty_count <- length(X[X<x & Y>y])
+Xltx_Ylty_count <- length(X[X<x & Y<y])
+
+contingency_table <- matrix(c(Xgtx_Ygty_count, Xgtx_Ylty_count, Xltx_Ygty_count, Xltx_Ylty_count), nrow = 2, ncol = 2)
+
+rownames(contingency_table) <- c('(Y>y)','(Y<y)')
+
+kable(contingency_table, digits=4, col.names = c('(X>x)', '(X<x)'), align = 'l')
+
+```
+
+#### Now calculating the left handside of the equation: P(X>x and Y>y) using the data from the contingency table
+```{r}
+p_X_gt_x_and_Y_gt_y <- length(X[X>x & Y>y]) / 10000
+print(p_X_gt_x_and_Y_gt_y)
+
+p_X_gt_x_into_p_Y_gt_y <- p_X_gt_x * p_Y_gt_y
+print(p_X_gt_x_into_p_Y_gt_y)
+```
+
+As we see from above, both these are nearly equal.
+
+### 5 points.  Check to see if independence holds by using Fisher’s Exact Test and the Chi Square Test.  What is the difference between the two? Which is most appropriate?
+
+#### We will use our conitingency table we built in the previous question.
+#### Now we will test the contingency table using these 2 tests - Ficher's and Chi Square test. 
+#### Null Hypothesis, H0: X>x and Y>y are independent events
+#### Alternate Hypothesis, HA: Both of these are dependent events
+
+```{r}
+fisher.test(contingency_table)
+```
+
+As we see here, the p-value is very high as compared to the general significance level of 0.05, hence we cannot reject the null hypothesis, that both are independent.
+Hence using Fisher test, we can say that both of these events are independent.
+
+```{r}
+chisq.test(contingency_table)
+```
+
+We see here too using Chi Square test, that p-value is very high as compared to the significance level of 0.05. Hence we can say again using this test that both of these are independent.
+
+In this case, both are giving us the same p-value.
+
+## Problem # 2: You are to register for Kaggle.com (free) and compete in the House Prices: Advanced Regression Techniques competition.  https://www.kaggle.com/c/house-prices-advanced-regression-techniques .  I want you to do the following.
+
+### 5 points.  Descriptive and Inferential Statistics. Provide univariate descriptive statistics and appropriate plots for the training data set.  Provide a scatterplot matrix for at least two of the independent variables and the dependent variable. Derive a correlation matrix for any three quantitative variables in the dataset.  Test the hypotheses that the correlations between each pairwise set of variables is 0 and provide an 80% confidence interval.  Discuss the meaning of your analysis.  Would you be worried about familywise error? Why or why not?
+
+```{r}
+train_raw_path <- "https://raw.githubusercontent.com/deepakmongia/Data605-Spring2019/master/train.csv"
+
+train_df <- read.csv(train_raw_path, header = TRUE, sep = ",")
+
+head(train_df)
+
+nrow(train_df)
+ncol(train_df)
+
+#summary(train_df)
+
+```
+
+Building a table for univariate statistics for all the numeric columns.
+
+```{r}
+train_df_numeric <- train_df[c(2,4,5, 18:21, 27,35, 37:39, 44:53, 55, 57, 60, 62, 63, 67, 72, 76:78, 81)]
+
+train_df_univariate_stats_df <- basicStats(train_df_numeric)[c("Minimum", "Maximum", "1. Quartile", "3. Quartile", "Mean", "Median",
+                               "Variance", "Stdev", "Skewness", "Kurtosis"), ] %>% t() %>% as.data.frame()
+
+kable(train_df_univariate_stats_df)
+```
+
+
+Plotting each of the variables for their ranges:
+```{r}
+par(mfrow=c(2,3))
+boxplot(train_df$MSSubClass, main='MSSubClass')
+boxplot(train_df$LotFrontage, main='LotFrontage')
+boxplot(train_df$LotArea, main='LotArea')
+boxplot(train_df$OverallQual, main='OverallQual')
+boxplot(train_df$OverallCond, main='OverallCond')
+boxplot(train_df$YearBuilt, main='YearBuilt')
+
+par(mfrow=c(2,3))
+boxplot(train_df$YearRemodAdd, main='YearRemodAdd')
+boxplot(train_df$MasVnrArea, main='MasVnrArea')
+boxplot(train_df$BsmtFinSF1, main='BsmtFinSF1')
+boxplot(train_df$BsmtFinSF2, main='BsmtFinSF2')
+boxplot(train_df$BsmtUnfSF, main='BsmtUnfSF')
+boxplot(train_df$TotalBsmtSF, main='TotalBsmtSF')
+
+par(mfrow=c(2,3))
+boxplot(train_df$X1stFlrSF, main='X1stFlrSF')
+boxplot(train_df$X2ndFlrSF, main='X2ndFlrSF')
+boxplot(train_df$LowQualFinSF, main='LowQualFinSF')
+boxplot(train_df$GrLivArea, main='GrLivArea')
+boxplot(train_df$BsmtFullBath, main='BsmtFullBath')
+boxplot(train_df$BsmtHalfBath, main='BsmtHalfBath')
+
+par(mfrow=c(2,3))
+boxplot(train_df$FullBath, main='FullBath')
+boxplot(train_df$HalfBath, main='HalfBath')
+boxplot(train_df$BedroomAbvGr, main='BedroomAbvGr')
+boxplot(train_df$KitchenAbvGr, main='KitchenAbvGr')
+boxplot(train_df$TotRmsAbvGrd, main='TotRmsAbvGrd')
+boxplot(train_df$Fireplaces, main='Fireplaces')
+
+par(mfrow=c(2,3))
+boxplot(train_df$GarageYrBlt, main='GarageYrBlt')
+boxplot(train_df$GarageCars, main='GarageCars')
+boxplot(train_df$GarageArea, main='GarageArea')
+boxplot(train_df$WoodDeckSF, main='WoodDeckSF')
+boxplot(train_df$PoolArea, main='PoolArea')
+boxplot(train_df$MiscVal, main='MiscVal')
+
+par(mfrow=c(1,3))
+boxplot(train_df$MoSold, main='MoSold')
+boxplot(train_df$YrSold, main='YrSold')
+boxplot(train_df$SalePrice, main='SalePrice')
+
+```
+
+#### Plotting the scatter plots between a few independent variables and the response variable
+```{r}
+par(mfrow=c(2,3))
+ggplot(train_df, aes(x=LotArea, y=SalePrice)) +
+  geom_point(shape=1)
+
+ggplot(train_df, aes(x=BsmtFinSF1, y=SalePrice)) +
+  geom_point(shape=1)
+
+ggplot(train_df, aes(x=TotalBsmtSF, y=SalePrice)) +
+  geom_point(shape=1)
+
+ggplot(train_df, aes(x=GrLivArea, y=SalePrice)) +
+  geom_point(shape=1)
+
+ggplot(train_df, aes(x=GarageArea, y=SalePrice)) +
+  geom_point(shape=1)
+```
+
+The GrLiving area - which is area above ground has a linear relationship with the sale price of the apartment.
+Also the garage area also looks to have a good relationship, even though there are some houses available with no garage area.
+
+### Correlation - We will work on 3 variables: LotArea, GrLivArea and SalePrice. We will determine the correlation between SalePrice and LotArea, and SalePrice and GrLivArea.
+
+```{r}
+X <- train_df$LotArea
+Y <- train_df$GrLivArea
+Z <- train_df$SalePrice
+```
+
+```{r}
+cor(Y,Z)
+
+cor(X,Z)
+```
+
+Working on Living area (Y) and sale price (Z) first:
+H0: correlation between Y and Z = 0 --> Null Hypothesis
+HA: correlation between Y and Z > 0 --> Alternate Hypothesis
+
+Using the R function for T-testing to get 80% confidence level:
+```{r}
+t.test(Y, Z, conf.level = 0.8)
+```
+
+From this result, we see that there is a 80% confidence level that the difference in the means of the 2 variables is between -182071.5 and -176740.0. And the p-value is 2.2e-16 which is way less than the significance value of 0.05. Hence we can reject the null hypothesis and say that the correlation between Living area and sale price is not 0, and these are related to each other.
+
+Similarly, for the other pair: Lot area (X) and sale price (Z)
+H0: correlation between X and Z = 0 --> Null Hypothesis
+HA: correlation between X and Z > 0 --> Alternate Hypothesis
+
+```{r}
+t.test(X, Z, conf.level = 0.8)
+```
+From this result, we see that there is a 80% confidence level that the difference in the means of the 2 variables is between -173091.0 and -167717.8. And the p-value is 2.2e-16 for this one too, which is way less than the significance value of 0.05. Hence we can reject the null hypothesis and say that the correlation between Living area and sale price is not 0, and these are related to each other.
+
+
+### 5 points. Linear Algebra and Correlation
+#### Invert your correlation matrix from above. (This is known as the precision matrix and contains variance inflation factors on the diagonal.) Multiply the correlation matrix by the precision matrix, and then multiply the precision matrix by the correlation matrix. Conduct LU decomposition on the matrix.  
+
+We will build the correlation matrix for X (LotArea) and Z (SalePrice)
+
+```{r}
+matrix1 <- data.frame(X,Z)
+
+head(matrix1)
+```
+
+Building the correlation matrix for this:
+```{r}
+matrix1_corr <- cor(matrix1)
+
+matrix1_corr
+```
+
+Taking the inverse of the correlation matrix:
+```{r}
+matrix1_prec <- solve(matrix1_corr)
+
+matrix1_prec
+```
+
+Multiplying the correlation and precision matrices in both directions
+```{r}
+matrix1_corr %*% matrix1_prec
+matrix1_prec %*% matrix1_corr
+```
+
+As the precision matrix is an inverse of the correlation matrix, multiplying them in either direction gives us an identity matrix.
+
+#### LU decomposition
+
+```{r}
+matrix1_corr_L <- lu(matrix1_corr)$L
+matrix1_corr_L
+
+matrix1_corr_U <- lu(matrix1_corr)$U
+matrix1_corr_U
+```
+
+As per the LU decomposition, LU = A
+Here A is the correlation matrix we created above.
+So, if we multiply L and U above, it should give correlation matrix
+```{r}
+matrix1_corr_L %*% matrix1_corr_U
+
+identical(matrix1_corr, matrix1_corr_L %*% matrix1_corr_U)
+
+```
+
+### 5 points.  Calculus-Based Probability & Statistics
+### Many times, it makes sense to fit a closed form distribution to data.  Select a variable in the Kaggle.com training dataset that is skewed to the right, shift it so that the minimum value is absolutely above zero if necessary
+#### By looking at the box plot at the top, and the skewnwss value, we will take the variable: LotArea as it is highly skewed to the right. The skewness value of this variable is +0.259. As it is considerably higher than +0.1, it means it is highly skewed to the right.
+#### Let us build a histogram of the same.
+
+```{r}
+hist(train_df$LotArea, col = 'purple', main = 'Lot Area variable', breaks = 30)
+```
+
+As we see above in the histogram, this variable is highly skewed to the right.
+
+###Then load the MASS package and run fitdistr to fit an exponential probability density function.  (See  https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/fitdistr.html ).  Find the optimal value of lamda for this distribution, and then take 1000 samples from this exponential distribution using this value (e.g., rexp(1000, lamda)).  Plot a histogram and compare it with a histogram of your original variable. 
+
+Now we are going to fit this variable to an exponential distribution.
+```{r}
+LotArea_fitted <- fitdistr(train_df$LotArea, "exponential")
+```
+
+Getting the value of lambda for this exponential distribution
+```{r}
+lamda <- LotArea_fitted$estimate
+lamda
+
+exp_sample <- rexp(1000, lamda)
+
+summary(exp_sample)
+
+hist(exp_sample, col = 'purple', breaks = 20)
+```
+
+As we see from this new histogram of the new variable which was generated by fitting the LotArea variable to the exponential distribution, the plot looks a very good exponential one, and we can use it for estimation, in case required further.
+
+#### Plot a histogram and compare it with a histogram of your original variable.   Using the exponential pdf, find the 5th and 95th percentiles using the cumulative distribution function (CDF).   Also generate a 95% confidence interval from the empirical data, assuming normality.  Finally, provide the empirical 5th percentile and 95th percentile of the data.  Discuss.
+
+Generating the 5th and 95th percentiles
+```{r}
+qexp(c(0.05,0.95), lamda)
+```
+
+Generating 95% confidence level from the data, assuming that the distribution is normal
+```{r}
+qnorm(c(0.025, 0.975), mean = mean(train_df$LotArea), sd = sd(train_df$LotArea))
+```
+
+Now using the actual data to get 5th and 95th percentile
+```{r}
+quantile(train_df$LotArea, c(0.05, 0.95))
+```
+
+This indicates that the lowest 5% of the observations are below 3311 sq. ft. of Lot Area, and the upper 5% values are above 17401 sq. ft. So the 90% fall under this range.
+
+
+### 10 points.  Modeling.  Build some type of multiple regression  model and submit your model to the competition board.  Provide your complete model summary and results with analysis.  Report your Kaggle.com user name and score.
+
+#### We will start with all the variables first, and then we will go step by step to remove the independent variables which do not look to be much relevant in determining the response variable.
+
+```{r}
+saleprice_lm2 <- lm(SalePrice ~ ., data = train_df_numeric)
+
+summary(saleprice_lm2)
+```
+
+From the above summary information, we will remove the independent variables which gave NA in the results, and also the ones which have P-value significantly greater than 0.05. Hence generating this new model.
+```{r}
+saleprice_lm3 <- lm(SalePrice ~ MSSubClass + LotFrontage + LotArea + OverallQual +
+                      OverallCond + YearBuilt + YearRemodAdd + MasVnrArea + BsmtFinSF1 +
+                      BsmtFinSF2 + BsmtUnfSF + X1stFlrSF + X2ndFlrSF + LowQualFinSF +
+                      BsmtFullBath + FullBath + BedroomAbvGr + KitchenAbvGr +
+                      TotRmsAbvGrd + Fireplaces + GarageCars + WoodDeckSF +
+                      PoolArea, data = train_df_numeric)
+
+summary(saleprice_lm3)
+```
+
+Removing the independent variables further which have P-value greater than 0.05.
+```{r}
+saleprice_lm4 <- lm(SalePrice ~ MSSubClass + LotArea + OverallQual +
+                      OverallCond + YearBuilt + YearRemodAdd + MasVnrArea + 
+                      BsmtFinSF1 + X1stFlrSF + X2ndFlrSF + BsmtFullBath + 
+                      FullBath + BedroomAbvGr + KitchenAbvGr +
+                      TotRmsAbvGrd + Fireplaces + GarageCars + WoodDeckSF +
+                      PoolArea, data = train_df_numeric)
+
+summary(saleprice_lm4)
+```
+
+Removing further some variables, as we still have some variables with P-value > 0.05
+```{r}
+saleprice_lm5 <- lm(SalePrice ~ MSSubClass + LotArea + OverallQual +
+                      OverallCond + YearBuilt + YearRemodAdd + MasVnrArea + 
+                      BsmtFinSF1 + X1stFlrSF + X2ndFlrSF + BsmtFullBath + 
+                      BedroomAbvGr + KitchenAbvGr +
+                      TotRmsAbvGrd + Fireplaces + GarageCars + WoodDeckSF, 
+                    data = train_df_numeric)
+
+summary(saleprice_lm5)
+
+```
+
+Now as we see above, in the newest model, there are no variables with P-value > 0.05. Hence we will use this as our final model here.
+
+Now we will load the test data into a dataframe and then predict the results using this model.
+```{r}
+test_raw_path <- "https://raw.githubusercontent.com/deepakmongia/Data605-Spring2019/master/test.csv"
+
+test_df <- read.csv(test_raw_path, header = TRUE, sep = ",")
+
+head(test_df)
+```
+
+Based on a few iterations, we see that there are some variables which have value NA due to which the predicted values are coming as NA.
+To avoid this so that the predicted values can be submitted on Kaggle, we will replace NA with 0.
+```{r}
+test_df$MasVnrArea[is.na(test_df$MasVnrArea)] <- 0
+test_df$BsmtFinSF1[is.na(test_df$BsmtFinSF1)] <- 0
+test_df$BsmtFullBath[is.na(test_df$BsmtFullBath)] <- 0
+
+prediction_results <- predict(saleprice_lm5, test_df)
+
+prediction_results_df <- data.frame(cbind(test_df$Id, prediction_results))
+
+colnames(prediction_results_df) = c('Id', 'SalePrice')
+
+head(prediction_results_df, 10)
+```
+
+Now I submitted the final sheet of the predicted results to Kaggle.
+My Kaggle score: 0.51444
+My Kaggle user name: deepakmongia
